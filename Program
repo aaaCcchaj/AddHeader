@@ -1,0 +1,85 @@
+using System;
+using System.IO;
+using System.Text;
+
+namespace AddHeader
+{
+    class Program
+    {
+        private static void Main(string[] args)
+        {
+            if (ArgsHasError(args)) 
+                return;
+            var sb = GetHeaderStringBuilder(args);
+            AddHeader(args, sb);
+        }
+
+        /// <summary>
+        /// 添加文件头
+        /// </summary>
+        /// <param name="args"></param>
+        /// <param name="sb"></param>
+        private static void AddHeader(string[] args, StringBuilder sb)
+        {
+            using (StreamReader sr = new StreamReader(args[0]))
+            {
+                sb.AppendLine(sr.ReadToEnd());
+            }
+            using (StreamWriter outfile = new StreamWriter(args[0]))
+            {
+                outfile.Write(sb.ToString());
+            }
+        }
+
+        /// <summary>
+        /// 获取头文件名称
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        private static StringBuilder GetHeaderStringBuilder(string[] args)
+        {
+            string arg0 = DateTime.Now.Year.ToString();
+            string arg1 = Path.GetFileName(args[0]);
+            string arg2 = File.GetCreationTime(args[0]).ToString("yyyy-MM-dd");
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine(string.Format(header, arg0, arg1, arg2));
+            return sb;
+        }
+
+        /// <summary>
+        /// 检查参数
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        private static bool ArgsHasError(string[] args)
+        {
+            if (args.Length == 0)
+                return true;
+            if (!File.Exists(args[0]))
+            {
+                return true;
+            }
+            if (Path.GetExtension(args[0]) != ".cs")
+            {
+                return true;
+            }
+            return false;
+        }
+
+
+        static string header =
+              @"#region Copyright (c) 2009-{0} Hisense Network Technology Co., Ltd. All Rights Reserved
+/*********************************************************************************************
+*文件名：	{1}
+*创建日期：{2}
+*作者：	张念胜
+*版本：	3.1
+*说明：	
+*----------------------------------------------------------------------------------------------
+*修改记录：
+*日期			版本	修改人	修改内容
+********************************************************************************************/
+#endregion Copyright (c) 2009-{0} Hisense Network Technology Co., Ltd. All Rights Reserved";
+    }
+}
+
